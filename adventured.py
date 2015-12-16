@@ -1,19 +1,3 @@
-# Directions: North is 1, South is 2, East is 3, West is 4
-# Defaults: Save, Load, 
-conf = open('config', 'r');
-conf = conf.read();
-lconf = [''];
-for i in range(len(conf)):
-  if conf[i] != '\n':
-    lconf[-1] = lconf[-1] + conf[i];
-  else:
-    lconf.append('');
-conf = [];
-for i in lconf:
-  if i != '' and i[:2] != '//':
-    conf.append(i);
-defaults = [1,2,3,4];
-
 rooms = {'f': {'d':'It is an empty room'}};
 objects = {};
 usages = {};
