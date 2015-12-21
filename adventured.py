@@ -1,9 +1,22 @@
-rooms = {'f': {'d':'It is an empty room'}};
+rooms = {'f': {'@d':'It is an empty room'}};
 objects = {};
 usages = {};
-sel = {'room':'f', 'inventory':[]};
+sel = {'@room':'f', '@inventory':[]};
 
 parsing = 1;
+
+def concat(l):
+  z = '';
+  for i in l:
+    z += i + ' ';
+  return(z[:-1]);
+
+def sant(l):
+  q = [];
+  for i in l:
+    if i != '':
+      q.append(i);
+  return(q);
 
 def words(s):
     s += ' ';
@@ -16,71 +29,143 @@ def words(s):
         z = '';
     return(l);
 
+def atz(l):
+  q = {'#delete':''};
+  b = '#delete'
+  for i in l:
+    if i[0] == '@':
+      q[b] = q[b][:-1];
+      q[i] = '';
+      b = i;
+    else:
+      q[b] += i + ' ';
+  q[b] = q[b][:-1];
+  del q['#delete'];
+  return q;
+  
 def direct(d):
   if d == 'North' or d == 'north' or d == 'n':
-    return 1;
+    return '@n';
   if d == 'South' or d == 'south' or d == 's':
-    return 3;
+    return '@s';
   if d == 'West' or d == 'west' or d == 'e':
-    return 2;
+    return '@w';
   if d == 'East' or d == 'east' or d == 'w':
-    return 4;
+    return '@e';
 
 def adrect(d):
-  if d == 'n':
+  if d == '@n':
     return 'North';
-  if d == 's':
+  if d == '@s':
     return 'South';
-  if d == 'e':
+  if d == '@e':
     return 'East';
-  if d == 'w':
+  if d == '@w':
     return 'West';
   
 def save(p):
-  print('save');
+  fil = open(p,'w');
+  stuff = 'rooms' + concat(['\n' + i + ' ' + concat([concat([j,rooms[i][j]]) for j in rooms[i]]) for i in rooms]) + '\nobjects' + concat(['\n' + i + ' ' + concat([concat([j,objects[i][j]]) for j in objects[i]]) for i in objects]) + '\nself' + '\n@room\n' + sel['@room'] + '\n@inventory' + concat(sel['@inventory']) + '\n';
+  fil.write(stuff);
 
-def load():
-  print('load');
+def load(p):
+  fil = open(p, 'r');
+  raw = fil.read();
+  z = '';
+  div1 = [];
+  for i in raw:
+    if i != '\n':
+      z += i;
+    else:
+      div1.append(z[0:]);
+      z = '';
+  rom = [];
+  obj = [];
+  sej = [];
+  div = [];
+  for i in div1:
+    if i != '':
+      div.append(i);
+  flag = 'wait';
+  for i in div:
+    if flag == 'rooms':
+      if i != 'objects':
+        rom.append(i);
+      else:
+        flag = i;
+    elif flag == 'objects':
+      if i != 'self':
+        obj.append(i);
+      else:
+        flag = i;
+    elif flag == 'self':
+      sej.append(i);
+    elif flag == 'wait':
+      if i == 'rooms':
+        flag = i;
+  for i in range(len(rom)):
+    rom[i] = words(rom[i]);
+  for i in range(len(obj)):
+    obj[i] = words(obj[i]);
+  global rooms;
+  global objects;
+  global sel;
+  sel = {};
+  rooms = {};
+  objects = {};
+  for i in range(len(rom)):
+    rom[i] = sant(rom[i]);
+  for i in range(len(obj)):
+    obj[i] = sant(obj[i]);
+  for i in rom:
+    rooms[i[0]] = atz(i);
+  for i in obj:
+    objects[i[0]] = atz(i);
+  sel = atz(sej);
+  sel['@inventory'] = words(sel['@inventory']);
 
 def walk(d):
-  if d in rooms[sel['room']]:
-    sel['room'] = rooms[sel['room']][d];
+  if direct(d) in rooms[sel['@room']]:
+    sel['@room'] = rooms[sel['@room']][direct(d)];
   
 def examine(o):
   if o in objects:
-    print(objects[o]['d']);
+    print(objects[o]['@d']);
   
 def use():
   print('use');
   
 def look():
-  print(rooms[sel['room']]['d']);
+  print(rooms[sel['@room']]['@d']);
   q = '';
-  for i in rooms[sel['room']]:
-    if i != 'd':
+  for i in rooms[sel['@room']]:
+    if i != '@d':
       q += adrect(i) + ' ';
   if q == '':
     q = 'nowhere ';
+  for i in objects:
+    if objects[i]['@room'] == sel['@room']:
+      print(i);
   print('\nThere are exits '+q[:-1]);
   
 def make(l):
-  if l == []:
+  if len(l) < 2:
     print('Parsing Error');
   elif l[0] == 'room':
-    rooms[l[1]] = {'d':input('Input Description: ')}
+    rooms[l[1]] = {'@d':input('Input Description: ')}
   elif l[0] == 'object':
-    objects[l[1]] = {'d':input('Input Description: ')}
+    objects[l[1]] = {'@d':input('Input Description: ')}
     if len(l) >= 3:
-      objects[l[1]]['l'] = l[2]
+      objects[l[1]]['@room'] = l[2]
     else:
-      objects[l[1]]['l'] = sel['room'];
+      objects[l[1]]['@room'] = sel['@room'];
     if len(l) == 4:
-      objects[l[1]]['h'] = l[3];
+      objects[l[1]]['@holdable'] = l[3];
     else:
-      objects[l[1]]['h'] = 0;
+      objects[l[1]]['@holdable'] = '1';
   elif l[0] == 'door':
-    rooms[l[1]][l[2]] = l[3];
-    rooms[l[3]][l[4]] = l[1];
+    rooms[l[1]]['@'+l[2]] = l[3];
+    rooms[l[3]]['@'+l[4]] = l[1];
 
 def halp():
   print('help');
@@ -105,7 +190,7 @@ def info(l = 'n'):
       print(i+': '+objects[l[1]][i]);
   elif l[0] == 'self':
     for i in sel:
-      if i != 'inventory':
+      if i != '@inventory':
         print(i+': '+sel[i]);
       
 def remove(l):
@@ -144,7 +229,7 @@ def edit(l):
     sel[l[1]] = l[2];
     
 def inv():
-  for i in sel['inventory']:
+  for i in sel['@inventory']:
     print(i);
   
 def exit():
@@ -153,10 +238,23 @@ def exit():
     global parsing;
     parsing = 0;
 
+def take(o):
+  if o in objects:
+    if objects[o]['@room'] == sel['@room'] and objects[o]['@holdable'] == '1':
+      objects[o]['@room'] == 'inventory';
+      sel['@inventory'].append(o);
+
+def drop(o):
+  if o in sel['@inventory']:
+    del sel['@inventory'][o];
+    objects[o]['@room'] = sel['@room'];
+      
 def parse():
   i = input('>>> ');
   # input can start with "save" "load" "walk" "examine" "use" "look" "make" "help" "list" "remove" "exit" 
   i = words(i);
+  if len(i) == 1:
+    i.append('');
   if i[0] == 'save':
     save(i[1]);
   elif i[0] == 'load':
@@ -183,6 +281,14 @@ def parse():
     info(i[1:]);
   elif i[0] == 'inventory':
     inv();
+  elif i[0] == 'take':
+    take(i[1]);
+  elif i[0] == 'drop':
+    drop(i[1]);
+  elif i[0] == 'stuff':
+    print(rooms);
+    print(objects);
+    print(sel);
   else:
     print('Parsing Error');
   return 0;

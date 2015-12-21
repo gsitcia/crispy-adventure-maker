@@ -1,0 +1,9 @@
+rooms
+q @d Yet another empty room @s f 
+f @d It is an empty room @n q
+objects
+poop @d It is a poop @holdable 1 @room f
+self
+@room
+q
+@inventory
