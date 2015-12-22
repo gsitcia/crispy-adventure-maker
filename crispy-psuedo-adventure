@@ -1,0 +1,166 @@
+Initialize rooms dictionary. [Both rooms and objects dictionaries point to more dictionaries with properties]
+Initialize objects dictionary. (empty dictionary)
+Initialize sel dictionary. (with room and inventory)
+
+Initialize parsing variable to 1
+
+define concat(list)     [to take a list and convert it into a sentence]
+    set z to an empty string
+    for i in list
+        add the concatenation of i and a space to z
+    return z except for the last character (which is an extraneous string)
+
+define concan(list)
+    same as concat except puts newlines instead of spaces
+
+define sanitize(l[list])    [to take a list and remove empty strings]
+    set q to an empty list
+    for i in l
+        if i is not an empty string
+            add i to q
+    return list q
+
+def words(s[string])    [to take a sentence and extract the words]
+    add a space to s
+    set l to an empty list
+    set z to an empty string
+    for i in string s
+        concatenate i to z
+        if i is a space
+            append z (except the last character) to l
+            set z to an empty string
+    return list l
+
+define atz(l[list]) [an absurdly specific procedure to help read save files]
+    set q to a dictionary {'#delete':''}
+    set b to '#delete'
+    for i in list l
+        if the first character of i is an @ symbol
+            set the index b of dictionary q to the same less the last character
+            set the index i of dictionary q to an empty string
+            set b to i
+        else
+            concatenate the concatenation of i and a space to the index b of dictionary q
+    set index b of q to the same less the last character
+    delete index '#delete' from dictionary q
+    return dictionary q
+  
+define direct(d[string])
+    if d is 'North' or 'north' or 'n'
+        return '@n'
+    if d is 'South' or 'south' or 'n'
+        return '@s'
+    if d is 'East' or 'east' or 'e'
+        return '@e'
+    if d is 'West' or 'west' or 'w'
+        return '@w'
+    
+define adrect(d[string])
+    if d is '@n'
+        return 'North'
+    if d is '@s'
+        return 'South'
+    if d is '@e'
+        return 'East'
+    if d is '@w'
+        return 'West'
+
+define save(p[string])
+    open file p with write permissions
+    set string stuff to the concatenation of 'rooms', (here we take the rooms dictionary and for each index we take that dictionary and concatenate it all together (Just look at the save file, entitled plap)), '\nobjects', same thing with objects, '\nself\n@room\n', index '@room' in dictionary sel, '\n@inventory', concan of the index '@inventory' of dictionary sel
+    write string stuff to file (overwrites file)
+  
+define load(p[string])
+    open file p with read permissions
+    set string raw to the readout of the file p
+    set z to an empty string
+    set div1 to an empty list
+    make list div1 be the division of string raw by line
+    set rom to an empty list
+    set obj to an empty list
+    set sej to an empty list
+    set div to an empty list
+    set list div to list div1 without any empty strings
+    set flag to string 'wait'
+    go through div and basically set rom to each room string in the save, set obj to each object string in the save and set sej to each self string in the save
+    go through rom and obj and set each string in their to the words [function] of that string
+    initialize global dictionaries rooms, objects, and sel
+    set rooms, objects, and sel to empty dictionaries
+    sanitize the lists in rom
+    sanitize the lists in obj
+    now uze the atz function to do all the work
+    make sure that index '@inventory' of dictionary sel is in fact a list
+
+define walk(d[string])
+    if direct(d) is one of the indexes in the current room
+    then set the index for current room to the value that d points to
+  
+define examine(o[string])
+    if index o in dictionary objects
+        print the description element of index o in dictionary objects
+  
+define use()
+    I need to implement this functionality at some point
+  
+define look()
+    print the description of the room
+    print the objects in tht room
+    print the exits
+  
+define make(l[list])
+    if length of l is less than 2
+        print 'Parsing Error'
+    else if the first element of list l is 'room'
+        make a room at index l[0] ...
+        ask for description
+    else if the first element of list l is 'object'
+        there are more values for this one, but anyways make them
+    else if the first element of list l is 'door'
+        makes values for doors...
+  
+define halp()
+    print 'I need to make a help function'
+
+define lest(n[string])
+    if string n is 'rooms'
+        print the indexes in dictionary rooms
+    if string n is 'objects'
+        print the indexes in dictionary objects
+
+define info(l[list])
+    check l is not empty
+    print info, not too complicated
+
+define remove(l[list])
+    for most things just delete the value
+    deleting a room should also delete the doors pointing to it, but I haven't yet implemented that
+    also the doors thing is sorta complicated, but it's straightforward
+      
+define edit(l)
+    points the program to the right dictionary and just uses the rest of the argument for the rest
+
+define inv()
+    for i in index '@inventory' of dictionary sel
+        print string i
+    
+define exit()
+    ask for confirmation
+        set parsing to 0
+  
+define take(o[string])
+    make sure o is an object
+        and that it is both holdable and in the current room
+            and then set it's room to inventory
+            and add it to your inventory (in sel)
+
+define drop(o[string])
+    make sure o is in inventory
+        set object's location as current location
+        remove from inventory (in sel)
+
+define parse()
+    ask for input
+    run the correct code snippet above
+      
+while variable parsing is 1
+    run parse()
