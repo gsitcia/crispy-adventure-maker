@@ -11,6 +11,12 @@ def concat(l):
     z += i + ' ';
   return(z[:-1]);
 
+def concan(l):
+  z = '';
+  for i in l:
+    z += i + '\n';
+  return(z[:-1]);
+
 def sant(l):
   q = [];
   for i in l:
@@ -65,7 +71,7 @@ def adrect(d):
   
 def save(p):
   fil = open(p,'w');
-  stuff = 'rooms' + concat(['\n' + i + ' ' + concat([concat([j,rooms[i][j]]) for j in rooms[i]]) for i in rooms]) + '\nobjects' + concat(['\n' + i + ' ' + concat([concat([j,objects[i][j]]) for j in objects[i]]) for i in objects]) + '\nself' + '\n@room\n' + sel['@room'] + '\n@inventory' + concat(sel['@inventory']) + '\n';
+  stuff = 'rooms' + concat(['\n' + i + ' ' + concat([concat([j,rooms[i][j]]) for j in rooms[i]]) for i in rooms]) + '\nobjects' + concat(['\n' + i + ' ' + concat([concat([j,objects[i][j]]) for j in objects[i]]) for i in objects]) + '\nself' + '\n@room\n' + sel['@room'] + '\n@inventory\n' + concan(sel['@inventory']) + '\n';
   fil.write(stuff);
 
 def load(p):
